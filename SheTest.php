@@ -45,7 +45,9 @@ class SheTest extends Plugin
             $controller = new Controller();
             $controller->setContainer($this->container);
             $event->getRequest()->attributes->set('_controller', [$controller, 'testAction']);
-            // or $event->setResponse(new Response('Hello WORLD'));
+        }
+        if($event->getRequest()->get('hello')) {
+            $event->setResponse(new Response('WORLD'));
         }
     }
 }
@@ -58,6 +60,6 @@ class Controller
     {
         $template = $this->container->get('template');
         $template->assign('name', $request->get('name'));
-        return new Response($template->fetch('string: Hello {$name|escape}'));
+        return new Response($template->fetch('string: Hello {$name|escape} {action}'));
     }
 }
