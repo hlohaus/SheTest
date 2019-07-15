@@ -2,6 +2,7 @@
 
 namespace SheTest;
 
+use Shopware\Bundle\StoreFrontBundle\Service\ContextServiceInterface;
 use Shopware\Components\Controller\AbstractController;
 use Shopware\Components\Plugin;
 use Symfony\Component\Console\ConsoleEvents as SymfonyConsoleEvents;
@@ -52,7 +53,7 @@ class SheTest extends Plugin
 
 class Controller extends AbstractController
 {
-    public function index(ContainerInterface $serviceContainer, $name = 'World')
+    public function index(ContextServiceInterface $contextService, $name = 'World')
     {
         return $this->render('string:Hello {$name} {url}', ['name' => $name]);
     }
