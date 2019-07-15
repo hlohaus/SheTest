@@ -2,11 +2,10 @@
 
 namespace SheTest;
 
+use Shopware\Components\Controller\AbstractController;
 use Shopware\Components\Plugin;
-use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Console\ConsoleEvents as SymfonyConsoleEvents;
 use Symfony\Component\Console\Event\ConsoleEvent;
-use Symfony\Component\DependencyInjection\ContainerAwareTrait;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -23,7 +22,7 @@ class SheTest extends Plugin
             //SymfonyConsoleEvents::ERROR => 'onError',
             //SymfonyConsoleEvents::EXCEPTION => 'onException',
             strtolower('Shopware_Command_Before_Run') => 'onRun',
-            KernelEvents::REQUEST => 'onRequest'
+            KernelEvents::REQUEST => ['onRequest', -100]
         ];
     }
 
@@ -42,9 +41,7 @@ class SheTest extends Plugin
     public function onRequest(GetResponseEvent $event)
     {
         if($event->getRequest()->getPathInfo() === '/hello/') {
-            $controller = new Controller();
-            $controller->setContainer($this->container);
-            $event->getRequest()->attributes->set('_controller', [$controller, 'testAction']);
+            $event->getRequest()->attributes->set('_controller', [Controller::class, 'index']);
         }
         if($event->getRequest()->get('hello')) {
             $event->setResponse(new Response('WORLD'));
@@ -52,14 +49,11 @@ class SheTest extends Plugin
     }
 }
 
-class Controller
-{
-    use ContainerAwareTrait;
 
-    public function testAction(Request $request)
+class Controller extends AbstractController
+{
+    public function index(ContainerInterface $serviceContainer, $name = 'World')
     {
-        $template = $this->container->get('template');
-        $template->assign('name', $request->get('name'));
-        return new Response($template->fetch('string: Hello {$name|escape} {action}'));
+        return $this->render('string:Hello {$name} {url}', ['name' => $name]);
     }
 }
